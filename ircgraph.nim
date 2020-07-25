@@ -89,14 +89,15 @@ proc log(nick: string, t: int, msg: string) =
 #
 
 let p = peg nim:
-  nim <- time * " #nim: " * ?bridge * '<' * *' ' * >nick * '>' * ' ' * >*1:
-    let (h, m, nick, msg) = (parseInt($1), parseInt($2), $3, $4)
-    let t = h * 60 + m
+  nim <- +Digit * "|" * time * "|" * >nick * '|' * >*1:
+    let t = parseInt($1)
+    let nick = $2
+    let msg = $3
+    #@echo t, nick, msg
     log(nick, t, msg)
 
-  bridge <- "< FromDiscord> " | "< FromGitter> "
-  time <- >(Digit * Digit) * ':' * >(Digit * Digit)
-  nick <- * +(1-'>')
+  time <- >(+Digit)
+  nick <- * +(1-'|')
 
 for l in lines(stdin):
   let r = p.match(l)
